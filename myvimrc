@@ -1,0 +1,147 @@
+" Vim with all enhancements
+source $VIMRUNTIME/vimrc_example.vim
+
+" Use the internal diff if available.
+" Otherwise use the special 'diffexpr' for Windows.
+if &diffopt !~# 'internal'
+  set diffexpr=MyDiff()
+endif
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg1 = substitute(arg1, '!', '\!', 'g')
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg2 = substitute(arg2, '!', '\!', 'g')
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let arg3 = substitute(arg3, '!', '\!', 'g')
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  let cmd = substitute(cmd, '!', '\!', 'g')
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
+"设置mapleader
+let mapleader = '\'
+"vundle start
+set nocompatible " be iMproved, required
+filetype off                  " required
+
+" 将Vundle插件的目录添加到gvim的运行时变量中
+set rtp+=$USERPROFILE/vimfiles/bundle/Vundle.vim/
+call vundle#begin('$USERPROFILE/vimfiles/bundle/')
+" All of your Plugins must be added before the following line
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'scrooloose/nerdtree'
+Plugin 'kien/rainbow_parentheses.vim'
+Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'mhinz/vim-signify'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'kien/ctrlp.vim'
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
+call vundle#end()            " required
+filetype plugin indent on    " required
+"vundle end
+"my theme
+colorscheme Tomorrow_Night
+"theme end
+"setting encoding
+set encoding=utf-8
+set fileencodings=utf-8,gbk,gb18030,gk2312
+"setting menu language
+set langmenu=en_US
+let $LANG = 'en_US'
+source $VIMRUNTIME/delmenu.vim
+source $VIMRUNTIME/menu.vim
+"setting encoding end
+"行号
+set number
+inoremap jk <ESC>
+"设置缩进
+set tabstop=4
+set softtabstop=4
+set shiftwidth=2
+set expandtab
+"add ycm
+set rtp+=%USERPROFILE%/YouCompleteMe
+let g:ycm_global_ycm_extra_conf=$USERPROFILE . "\\.ycm_extra_conf.py"
+"end ycm
+"括号补全
+inoremap ( ()<ESC>i
+inoremap [ []<ESC>i
+inoremap { {}<ESC>i
+inoremap ' ''<ESC>i
+inoremap " ""<ESC>i
+"启动彩虹括号
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+au Syntax * RainbowParenthesesLoadChevrons
+"font
+"set guifont=Bitstream_Vera_Sans_Mono:h10:cANSI
+let g:ycm_autoclose_preview_window_after_completion = 1
+"indent
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_start_level = 1
+let g:indent_guides_guide_size = 1
+let g:indent_guides_tab_guides = 0
+"设置tree
+nnoremap <leader>t :NERDTreeToggle<CR>
+"设置airline
+set laststatus=2
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+"设置ctrlp忽略文件
+set wildignore+=*\\tmp\\*,*.exe,*.class,*.jar,*\\node_modules\\*
+let g:ctrlp_map = '<c-f>'
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "m",
+    \ "Staged"    : "s",
+    \ "Untracked" : "u",
+    \ "Renamed"   : "r",
+    \ "Unmerged"  : "n",
+    \ "Deleted"   : "d",
+    \ "Dirty"     : "y",
+    \ "Clean"     : "c",
+    \ 'Ignored'   : 'i',
+    \ "Unknown"   : "?"
+    \ }
+set ambiwidth=double
+set guifont=NovaMono_for_Powerline:h11:cANSI:qDRAFT
+"
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
+"跳转到include 文件
+nnoremap <leader>ji :YcmCompleter GoToInclude<CR>
+"跳转到申明
+nnoremap <leader>jc :YcmCompleter GoToDeclaration<CR>
+"跳转到定义
+nnoremap <leader>jf :YcmCompleter GoToDefinition<CR>
+let g:ycm_language_server = 
+  \ [ 
+  \   {
+  \     'name': 'haskell',
+  \     'cmdline': [ 'd:/hie/bin/hie','--logfile' ,'d:/hie.log'],
+  \     'filetypes': [ 'haskell' ]
+  \   },
+  \ ]
